@@ -1,0 +1,5 @@
+-name ${NODE_NAME}
+
+-proto_dist epmdless_proto
+-start_epmd false
+-epmd_module epmdless_client

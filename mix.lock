@@ -1,0 +1,13 @@
+%{
+  "artificery": {:hex, :artificery, "0.2.6", "f602909757263f7897130cbd006b0e40514a541b148d366ad65b89236b93497a", [:mix], [], "hexpm"},
+  "bear": {:hex, :bear, "0.8.7", "16264309ae5d005d03718a5c82641fcc259c9e8f09adeb6fd79ca4271168656f", [:rebar3], [], "hexpm"},
+  "distillery": {:hex, :distillery, "2.0.10", "e9f1f1d3f4a89996a3e1a555872feed8a3a73e3d10b51886941382d29ca58f99", [:mix], [{:artificery, "~> 0.2", [hex: :artificery, repo: "hexpm", optional: false]}], "hexpm"},
+  "epmdless": {:git, "https://github.com/oltarasenko/epmdless.git", "a1b594d2741383723f6c5a594dcc0993f9f9d4b4", [branch: "master"]},
+  "exometer_core": {:hex, :exometer_core, "1.5.2", "62a99a361ba8a14d53857d4c716a191e810299d2f43c5c981eb7b086c0bfcce1", [:rebar3], [{:folsom, "~>0.8.5", [hex: :folsom, repo: "hexpm", optional: false]}, {:hut, "~>1.2.0", [hex: :hut, repo: "hexpm", optional: false]}, {:lager, "~>3.5.0", [hex: :lager, repo: "hexpm", optional: false]}, {:parse_trans, "~>3.0.0", [hex: :parse_trans, repo: "hexpm", optional: false]}, {:setup, "~>1.8.2", [hex: :setup, repo: "hexpm", optional: false]}], "hexpm"},
+  "folsom": {:hex, :folsom, "0.8.7", "a885f0aeee4c84270954c88a55a5a473d6b2c7493e32ffdc5765412dd555a951", [:rebar3], [{:bear, "0.8.7", [hex: :bear, repo: "hexpm", optional: false]}], "hexpm"},
+  "goldrush": {:hex, :goldrush, "0.1.9", "f06e5d5f1277da5c413e84d5a2924174182fb108dabb39d5ec548b27424cd106", [:rebar3], [], "hexpm"},
+  "hut": {:hex, :hut, "1.2.0", "0089df0faa2827c605bbada88153f24fff5ea7a4be32ecf0250a7fdc2719cafb", [:"erlang.mk", :rebar, :rebar3], [], "hexpm"},
+  "lager": {:hex, :lager, "3.5.2", "614a8c8f67bf99b69eb264ea22121ad25511c055aaec09b086773d5108c6767f", [:rebar3], [{:goldrush, "0.1.9", [hex: :goldrush, repo: "hexpm", optional: false]}], "hexpm"},
+  "parse_trans": {:hex, :parse_trans, "3.0.0", "9e96b1c9c3a0df54e7b76f8f685d38bfa1eb21b31e042b1d1a5a70258e4db1e3", [:rebar3], [], "hexpm"},
+  "setup": {:hex, :setup, "1.8.4", "738db0685dc1741f45c6a9bf78478e0d5877f3d0876c0b50fd02f0210edb5aa4", [:rebar3], [], "hexpm"},
+}
