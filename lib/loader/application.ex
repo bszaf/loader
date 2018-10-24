@@ -7,7 +7,7 @@ defmodule Loader.Application do
 
   def start(_type, _args) do
     # List all child processes to be supervised
-    :error_logger.info_msg("Starting loader")
+    :error_logger.info_msg("Starting loader ~n cookie: ~p", [Node.get_cookie()])
     children = [
       # Starts a worker by calling: Loader.Worker.start_link(arg)
       # {Loader.Worker, arg},
