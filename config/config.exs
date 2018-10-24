@@ -6,8 +6,4 @@ config :loader,
   # defines sources of config variables
   config_handlers: [Loader.Config.SysEnv, Loader.Config.AppEnv]
 
-config :epmdless,
-    transport: :tcp,
-    listen_port: 17012
-
 #     import_config "#{Mix.env()}.exs"

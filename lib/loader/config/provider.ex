@@ -28,10 +28,11 @@ defmodule Loader.Config.Provider do
 
   defp overwriteable_vars do
     [
-      epmdless: [
-        # [path in env vars,  OS var name           transform function
-        {[:listen_port], "LOADER_EPMD_LISTEN_PORT", &String.to_integer/1}
-      ]
+      ## application: [
+      #      [
+      #        # [path in env vars,  OS var name           transform function
+      #        {[:listen_port], "LOADER_EPMD_LISTEN_PORT", &String.to_integer/1}
+      #      ]
     ]
   end
 

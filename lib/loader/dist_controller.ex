@@ -71,7 +71,7 @@ defmodule Loader.DistController do
   # no one to cluster with, ignoring
   def handle_info(:try_cluster, %{to_cluster: nil} = s), do: {:noreply, s}
   def handle_info(:try_cluster, %{to_cluster: node, retry_cluster?: r} = s) do
-    if not cluster_via_epmdless(node) do
+    if not :net_kernel.connect_node(node) do
         r and Process.send_after(self(), :try_cluster, 10_000)
     end
     {:noreply, s}
@@ -104,24 +104,10 @@ defmodule Loader.DistController do
   @spec get_node_to_cluster() :: node_definition | nil
   defp get_node_to_cluster() do
     case Loader.Config.get(:cluster_with) do
-      {node, port} when is_atom(node) and is_integer(port) ->
-        {node, port}
-      {node, ip, port} when is_atom(node) and is_list(ip) and is_integer(port) ->
-        {node, ip, port}
+      node when is_atom(node) ->
+        node
       _ ->
         nil
-    end
-  end
-
-  @spec cluster_via_epmdless(node_definition) :: boolean()
-  defp cluster_via_epmdless(node_definition) do
-    case node_definition do
-      {node, port} when is_atom(node) and is_integer(port) ->
-        :epmdless_client.add_node(node, port)
-        :net_kernel.connect_node(node)
-      {node, ip, port} when is_atom(node) and is_list(ip) and is_integer(port) ->
-        :epmdless_client.add_node(node, ip, port)
-        :net_kernel.connect_node(node)
     end
   end
 
