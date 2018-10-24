@@ -25,14 +25,21 @@ defmodule Loader.ReactiveScenario do
   end
 
   defmacro __before_compile__(env) do
-    rules = Module.get_attribute(env.module, :rules)
-    rules = [quote(do: [match: any, handler: :handle_info]) | rules]
-    rules = :lists.reverse(rules)
-    receive_block = Enum.flat_map(rules, fn opts ->
+    raw_rules = Module.get_attribute(env.module, :rules)
+    overwriteable_default_rules =
+      (
+        quote(do: (any -> handle_info(any, state)))
+      )
+    default_rules =
+      (
+        quote(do: ({:'$control', opts} = control -> control))
+      )
+    rules = Enum.flat_map(raw_rules, fn opts ->
       match = Keyword.get(opts, :match)
       handler = maybe_to_atom(Keyword.get(opts, :handler))
       quote do: (unquote(match) = received -> unquote(handler)(received, state))
     end)
+    receive_block = List.flatten([default_rules, rules, overwriteable_default_rules])
     b = quote do
       def receive_do(state) do
         receive do
