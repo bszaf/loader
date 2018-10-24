@@ -7,6 +7,7 @@ defmodule Loader.Controller do
   @typep state :: %{
     scenario_module: Atom.t,
     total_users: Integer.t,
+    my_user_pids: [pid],
     interarrival: Integer.t,
     total_controllers: Integer.t,
     my_controller_id: Integer.t,
@@ -29,6 +30,14 @@ defmodule Loader.Controller do
     GenServer.call({__MODULE__, node}, {:load, opts})
   end
 
+  def unload_scenario() do
+    GenServer.call(__MODULE__, :unload)
+  end
+
+  def remote_unload_scenario(node) do
+    GenServer.call({__MODULE__, node}, :unload)
+  end
+
   def add_users(n) do
     GenServer.call(__MODULE__, {:add_users, n})
   end
@@ -42,13 +51,7 @@ defmodule Loader.Controller do
 ###
 
   def init(_state) do
-    initial_state = %{
-      scenario_module: nil,
-      total_users: 0,
-      interarrival: 10,
-      total_controllers: 1,
-      my_controller_id: 1}
-    {:ok, initial_state}
+    {:ok, clear_state()}
   end
 
   def handle_call({:load, _}, _from, %{scenario_module: m} = s) when m != nil do
@@ -69,6 +72,12 @@ defmodule Loader.Controller do
       err ->
         {:reply, err, state}
     end
+  end
+
+  def handle_call(:unload, _from, %{my_user_pids: pids} = s) do
+    Enum.each(pids, &Loader.UserSup.del_user/1)
+    reply = {:ok, :unloaded}
+    {:reply, reply, clear_state()}
   end
 
   def handle_call({:add_users, _n}, _from, %{scenario_module: m} = s) when m == nil do
@@ -113,7 +122,8 @@ defmodule Loader.Controller do
     interarrival: interarrival,
     total_controllers: total_controllers,
     apriori_scenario_state: scenario_state,
-    my_controller_id: id} = state,
+    my_controller_id: id,
+    my_user_pids: my_user_pids} = state,
     n)
   do
     start_id = total_users + 1
@@ -121,17 +131,21 @@ defmodule Loader.Controller do
     my_ids = my_ids([start: start_id, end: end_id], total_controllers, id)
 
     Logger.info("Starting #{length(my_ids)} users")
-    Enum.each(my_ids,
-              fn user_id ->
-                user_opts = %{
-                  total_users: n,
-                  aprior_state: scenario_state,
-                  scenario_module: m,
-                  id: user_id}
-                Loader.UserSup.add_user(user_opts)
-                Process.sleep(interarrival)
-              end)
-    {:ok, %{state | total_users: end_id}}
+    new_pids =
+      Enum.map(my_ids,
+               fn user_id ->
+                 user_opts = %{
+                   total_users: n,
+                   aprior_state: scenario_state,
+                   scenario_module: m,
+                   id: user_id
+                 }
+                 {:ok, pid} = Loader.UserSup.add_user(user_opts)
+                 Process.sleep(interarrival)
+                 pid
+               end)
+    new_pids = List.flatten(my_user_pids, new_pids)
+    {:ok, %{state | total_users: end_id, my_user_pids: new_pids}}
   end
 
   def my_ids([start: s, end: e], modulo, my_id) do
@@ -144,6 +158,16 @@ defmodule Loader.Controller do
   defp check_scenario_opts(_opts) do
     :ok
   end
+
+  defp clear_state() do
+    %{scenario_module: nil,
+      total_users: 0,
+      interarrival: 10,
+      total_controllers: 1,
+      my_controller_id: 1,
+      my_user_pids: []}
+  end
+
 
   @spec check_keys(Map.t, [keys :: any]) :: :ok | {:error, [keys :: any]}
   defp check_keys(map, keys) do

@@ -15,10 +15,16 @@ defmodule Loader.DistController do
     retry_cluster: true
   ]
 
+  ###
+  # API for controlling load test
+  ###
+
   def start_link(_args), do:
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
 
   def load_scenario(opts), do: GenServer.call(__MODULE__, {:load, opts})
+
+  def unload_scenario(), do: GenServer.call(__MODULE__, :unload)
 
   def add_users(n), do: GenServer.call(__MODULE__, {:add_users, n})
 
@@ -48,6 +54,20 @@ defmodule Loader.DistController do
     reply = case not_ok do
       [] ->
         {:ok, :loaded}
+      not_ok ->
+        {:error, not_ok}
+    end
+    {:reply, reply, state}
+  end
+
+  def handle_call(:unload, _from, %{nodes: nodes} = state) do
+    me_and_others = [node() | nodes]
+    {_ok, not_ok} =
+    unload_on_all(me_and_others)
+    |> Enum.split_with(&(&1 == {:ok, :unloaded}))
+    reply = case not_ok do
+      [] ->
+        {:ok, :unloaded}
       not_ok ->
         {:error, not_ok}
     end
@@ -137,6 +157,20 @@ defmodule Loader.DistController do
     load_fun = fn -> Loader.Controller.remote_load_scenario(node, opts) end
     result = call_catch_timeout(load_fun)
     {node_id + 1, [result | previous_results]}
+  end
+
+  defp unload_on_all(nodes) do
+    Enum.map(nodes, &unload/1)
+  end
+
+  defp unload(node) do
+    unload_fun =
+      if node == node() do
+          fn -> Loader.Controller.unload_scenario() end
+      else
+          fn -> Loader.Controller.remote_unload_scenario(node) end
+      end
+    call_catch_timeout(unload_fun)
   end
 
   defp call_catch_timeout(fun) do

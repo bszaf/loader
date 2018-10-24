@@ -11,6 +11,11 @@ defmodule Loader.UserSup do
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 
+  def del_user(user_pid) do
+    DynamicSupervisor.terminate_child(__MODULE__, user_pid)
+    :ok
+  end
+
   @impl true
   def init(_arg) do
     DynamicSupervisor.init(strategy: :one_for_one)
