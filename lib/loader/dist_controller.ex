@@ -78,7 +78,7 @@ defmodule Loader.DistController do
     me_and_others = [node() | nodes]
     {_ok, not_ok} =
     add_users_on_all(me_and_others, opts)
-    |> Enum.split_with(&(&1 == {:ok, :loaded}))
+    |> Enum.split_with(&(&1 == {:ok, :adding}))
     reply = case not_ok do
       [] ->
         {:ok, :started}
