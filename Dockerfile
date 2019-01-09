@@ -44,7 +44,8 @@ RUN \
   rm ${APP_NAME}.tar.gz
 
 # From this line onwards, we're in a new image, which will be the image used in production
-FROM alpine:${ALPINE_VERSION}
+FROM elixir:1.7.3-alpine
+#FROM alpine:${ALPINE_VERSION}
 
 # The name of your application/release (required)
 ARG APP_NAME
@@ -52,10 +53,15 @@ ARG APP_NAME
 RUN apk update && \
     apk add --no-cache \
       bash \
-      openssl-dev
+      openssl-dev \
+      expat-dev \
+      libstdc++
 
 ENV REPLACE_OS_VARS=true \
-    APP_NAME=${APP_NAME}
+    APP_NAME=${APP_NAME} \
+    NODE_NAME=${APP_NAME} \
+    NODE_COOKIE=${APP_NAME}
+
 
 WORKDIR /opt/app
 
