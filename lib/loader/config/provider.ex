@@ -22,12 +22,25 @@ defmodule Loader.Config.Provider do
       nil ->
         acc
       var_val ->
-        put_in(acc, path, transform.(var_val))
+        go_deep(path, transform.(var_val), acc)
     end
+  end
+
+  defp go_deep([last_key], new_val, acc) do
+    Keyword.put(acc, last_key, new_val)
+  end
+  defp go_deep([k | t], new_val, acc) do
+    modified_value = Keyword.get(acc, k, [])
+    Keyword.put(acc, k, go_deep(t, new_val, modified_value))
   end
 
   defp overwriteable_vars do
     [
+      exometer_core: [
+        {[:report, :reporters, :exometer_report_graphite, :host], "LOADER_GRAPHITE_HOST", &String.to_charlist/1},
+        {[:report, :reporters, :exometer_report_graphite, :port], "LOADER_GRAPHITE_PORT", &String.to_integer/1}
+      ]
+
       ## application: [
       #      [
       #        # [path in env vars,  OS var name           transform function
