@@ -23,7 +23,13 @@ defmodule Loader.MixProject do
   defp deps do
     [
       {:distillery, "~> 2.0"},
-      {:exometer_core, "~> 1.5.0"}
+      {:exometer_core, "~> 1.5.0", override: true},
+      {:exometer_report_graphite, git: "https://github.com/esl/exometer_report_graphite.git", branch: "master"},
+      {:meck, "~> 0.8.13", override: true},
+      {:escalus, git: "https://github.com/esl/escalus.git", tag: "4.0.0"},
+      {:httpoison, "~> 1.5"},
+      {:poison, "~> 4.0"},
+      {:recon, "~> 2.5"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
     ]

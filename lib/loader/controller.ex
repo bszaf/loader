@@ -22,6 +22,10 @@ defmodule Loader.Controller do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
+  def load_scenario(scenario) when is_atom(scenario) do
+    GenServer.call(__MODULE__, {:load, %{scenario_module: scenario}})
+  end
+
   def load_scenario(opts) do
     GenServer.call(__MODULE__, {:load, opts})
   end
@@ -136,7 +140,7 @@ defmodule Loader.Controller do
                fn user_id ->
                  user_opts = %{
                    total_users: n,
-                   aprior_state: scenario_state,
+                   apriori_state: scenario_state,
                    scenario_module: m,
                    id: user_id
                  }
@@ -162,7 +166,7 @@ defmodule Loader.Controller do
   defp clear_state() do
     %{scenario_module: nil,
       total_users: 0,
-      interarrival: 10,
+      interarrival: Loader.Config.get(:interarrival) || 100,
       total_controllers: 1,
       my_controller_id: 1,
       my_user_pids: []}

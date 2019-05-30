@@ -16,7 +16,9 @@ end
 
   def init(%{parent: parent_pid, scenario_module: m} = opts) do
     :proc_lib.init_ack(parent_pid, {:ok, self()})
-    state = Map.get(opts, :apriori_state, %{})
+    state =
+      Map.get(opts, :apriori_state, %{})
+      |> Map.put(:id, opts[:id])
     case m.init(state) do
       {:ok, state} ->
         loop(m, state)
@@ -32,6 +34,7 @@ end
       {:ok, state} ->
         loop(m, state)
       {:error, _} = err ->
+        Logger.error("User exiting with unexpected error: #{inspect err}")
         exit(err)
     end
   end
@@ -39,6 +42,8 @@ end
   defp safely_apply(fun) do
     try do
       fun.()
+    rescue
+      error -> {:error, {error, __STACKTRACE__}}
     catch
       error -> {:error, error}
     end

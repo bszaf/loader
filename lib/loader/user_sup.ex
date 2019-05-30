@@ -7,7 +7,10 @@ defmodule Loader.UserSup do
   end
 
   def add_user(opts) do
-    spec = %{id: Loader.User , start: {Loader.User, :start_link, [opts]}}
+    spec =
+      %{id: Loader.User,
+        start: {Loader.User, :start_link, [opts]},
+        restart: :temporary}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 
@@ -18,7 +21,7 @@ defmodule Loader.UserSup do
 
   @impl true
   def init(_arg) do
-    DynamicSupervisor.init(strategy: :one_for_one)
+    DynamicSupervisor.init(strategy: :one_for_one, max_restarts: 1000)
   end
 
 end

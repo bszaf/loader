@@ -13,7 +13,9 @@ defmodule Loader.ReactiveScenario do
 
       def init(state), do: {:ok, state}
 
-      defoverridable pre_init: 0, init: 1, handle_info: 2
+      def terminate(_reason, _state), do: {:ok, :stop}
+
+      defoverridable pre_init: 0, init: 1, handle_info: 2, terminate: 2
     end
   end
 
@@ -56,15 +58,22 @@ defmodule Loader.ReactiveScenario do
 
 end
 
-defmodule Test do
+defmodule TestScenario do
 
   use Loader.ReactiveScenario
   require Logger
 
-  rule match: {:tcp, _}, handler: :handle_tcp
+  rule match: {:tcp, _}, handler: handle_tcp
   rule match: :tick, handler: handle_tick
   rule match: :tock, handler: handle_tock
 
+  # called once before scenario is started
+  def pre_init() do
+    state = %{}
+    {:ok, state}
+  end
+
+  # called for each user
   def init(state) do
     :erlang.send_after(1000, self(), :tick)
     {:ok, state}
